@@ -1,0 +1,1 @@
+Type of f: *os.File, Size of f: 8

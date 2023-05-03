@@ -1,0 +1,31 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+type OpValues struct {
+	First  int
+	Second int
+}
+
+func main() {
+	wg.Add(1)
+	ctx := context.WithValue(context.Background(), "myValues", OpValues{3, 4})
+
+	go myOperator(ctx)
+	wg.Wait()
+}
+
+func myOperator(ctx context.Context) {
+	if vals := ctx.Value("myValues"); vals != nil {
+		if val, ok := vals.(OpValues); ok {
+			fmt.Printf("%d * %d = %d\n", val.First, val.Second, val.First*val.Second)
+		}
+	}
+	wg.Done()
+}

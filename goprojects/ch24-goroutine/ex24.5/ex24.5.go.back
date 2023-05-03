@@ -1,0 +1,46 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sync"
+	"time"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+	rand.Seed(time.Now().UnixNano())
+
+	wg.Add(2)
+
+	fork := &sync.Mutex{}
+	spoon := &sync.Mutex{}
+
+	//This can occur Deadlock problem
+	// go diningProblem("A", "fork", "spoon", fork, spoon)
+	// go diningProblem("B", "spoon", "fork", spoon, fork)
+
+	//This doesn't occur Deadlock because get Mutex in order
+	go diningProblem("A", "fork", "spoon", fork, spoon)
+	go diningProblem("B", "fork", "spoon", fork, spoon)
+
+	wg.Wait()
+}
+
+func diningProblem(name, first, second string, mFirst, mSecond *sync.Mutex) {
+	for i := 0; i < 100; i++ {
+		fmt.Printf("%s try to eat food\n", name)
+		mFirst.Lock()
+		fmt.Printf("%s get %s\n", name, first)
+		mSecond.Lock()
+		fmt.Printf("%s get %s\n", name, second)
+
+		fmt.Printf("%s start to eat food now..\n", name)
+		time.Sleep(time.Duration(rand.Intn(1000)) * time.Microsecond)
+
+		mSecond.Unlock()
+		mFirst.Unlock()
+	}
+	wg.Done()
+}

@@ -1,0 +1,45 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	ch := make(chan int)
+	go square(&wg, ch)
+
+	for i := 1; i <= 11; i++ {
+		ch <- i * 2
+	}
+	close(ch)
+
+	wg.Wait()
+}
+
+func square(wg *sync.WaitGroup, ch chan int) {
+	tick := time.Tick(time.Second)
+	terminated := time.After(time.Second * 10)
+	for {
+		select {
+		case <-terminated:
+			fmt.Println("Terminated")
+			wg.Done()
+			return
+		case <-tick:
+			fmt.Println("Tick")
+		case n := <-ch:
+			if n == 0 {
+				fmt.Println("close channel")
+				wg.Done()
+				return
+			}
+			fmt.Printf("Square %d: %d\n", n, n*n)
+			time.Sleep(time.Second)
+		}
+	}
+}
