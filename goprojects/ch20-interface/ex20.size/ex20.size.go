@@ -42,5 +42,11 @@ func main() {
 	fmt.Println("reader2 is implemented by PointerFile")
 	fmt.Printf("reader2 => Type: %v, Size: %v\n\n", reflect.TypeOf(reader2), unsafe.Sizeof(reader2))
 
+	if r, ok := reader2.(*PointerFile); ok {
+		fmt.Println(r.Name)
+	} else {
+		fmt.Println("Error occured! Cannot change type")
+	}
+
 	fmt.Printf("Size of pFile: %v\n", unsafe.Sizeof(pFile))
 }

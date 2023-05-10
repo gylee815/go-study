@@ -30,7 +30,7 @@ func ReadFile(r Reader) {
 	r.Read()
 	if c, ok := r.(Closer); ok {
 		c.Close()
-
+		fmt.Printf("Type of c is %T\n", c)
 		f := c.(*File)
 		fmt.Printf("File: %s is closed\n", f.Name)
 	} else {
