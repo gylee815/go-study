@@ -5,7 +5,6 @@ import (
 	"fmt"
 	search "goprojects/search_word/searching"
 	"os"
-	"path/filepath"
 	"sync"
 )
 
@@ -19,21 +18,16 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	wg.Add(10)
+	wg.Add(6)
 
 	word := os.Args[1]
 	files := os.Args[2:]
-	cnt := 0
+	file := os.Args
+	fmt.Println("file: ", file)
+	fmt.Printf("files: %s\n", files)
 	searchInfo := search.NewSearchInfo(ctx, &wg, cancel, files, word)
 
-	for _, file := range files {
-		filelist, err := filepath.Glob(file)
-		if err != nil {
-			fmt.Println("Error occured!! Err: ", err)
-		} else {
-			cnt += len(filelist)
-		}
-	}
+	cnt := searchInfo.GetFileCount()
 
 	fmt.Printf("file count: %d\n", cnt)
 

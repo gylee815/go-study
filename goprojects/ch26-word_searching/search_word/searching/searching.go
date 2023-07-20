@@ -27,6 +27,37 @@ func NewSearchInfo(ctx context.Context, wg *sync.WaitGroup, cancel context.Cance
 	}
 }
 
+// func (s *SearchInfo) GetFileCount() int {
+// 	var cnt int
+// 	for _, file := range s.Files {
+// 		filelist, err := filepath.Glob(file)
+// 		if err != nil {
+// 			fmt.Println("Error occured!! Err: ", err)
+// 		} else {
+// 			cnt += len(filelist)
+// 		}
+// 	}
+// 	return cnt
+// }
+
+func (s *SearchInfo) GetFileCount() int {
+	// var cnt int
+	// fmt.Println(s.Files)
+	// for _, file := range s.Files {
+	// 	filelist, err := find.GetFileList(file)
+	// 	if err != nil {
+	// 		fmt.Println("Error occured!! Err: ", err)
+	// 	} else {
+	// 		cnt += len(filelist)
+	// 	}
+	// }
+	filelist, err := find.GetFileList("*.txt")
+	if err != nil {
+		return 0
+	}
+	return len(filelist)
+}
+
 func (s *SearchInfo) Start() {
 	for _, path := range s.Files {
 		go find.FindWordInAllfiles(s.Word, path, s.Wg, s.InfoCh)
@@ -49,6 +80,7 @@ func (s *SearchInfo) PrintResult(cnt int) {
 			fmt.Println()
 			cnt--
 			if cnt == 0 {
+				// s.Wg.Done()
 				s.Cancel()
 			}
 		case <-s.Ctx.Done():

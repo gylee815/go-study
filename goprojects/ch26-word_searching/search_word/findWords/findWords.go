@@ -32,6 +32,8 @@ func FindWordInAllfile(word, filename string, infoCh chan FindInfo, wg *sync.Wai
 		wg.Done()
 		return
 	}
+
+	defer wg.Done()
 	defer file.Close()
 
 	lineNo := 1
@@ -45,13 +47,13 @@ func FindWordInAllfile(word, filename string, infoCh chan FindInfo, wg *sync.Wai
 		lineNo++
 	}
 	infoCh <- findInfo
-	wg.Done()
 }
 
 func FindWordInAllfiles(word, path string, wg *sync.WaitGroup, infoCh chan FindInfo) {
 	// findInfos := []FindInfo{}
 
-	filelist, err := filepath.Glob(path)
+	// filelist, err := filepath.Glob(path)
+	filelist, err := GetFileList(path)
 	if err != nil {
 		fmt.Println("Wrong file path !! err: ", err, "path: ", path)
 		return
@@ -75,4 +77,21 @@ func FindWordInAllfiles(word, path string, wg *sync.WaitGroup, infoCh chan FindI
 	// 	}
 	// }
 	// return findInfos
+}
+
+func GetFileList(pattern string) ([]string, error) {
+	filelist := []string{}
+	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			matched, _ := filepath.Match(pattern, info.Name())
+			if matched {
+				filelist = append(filelist, path)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return []string{}, err
+	}
+	return filelist, nil
 }
